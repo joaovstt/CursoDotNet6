@@ -1,6 +1,7 @@
 using API.Infra;
 using API.Mappers;
 using API.Services;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +47,15 @@ app.UseCors(c =>
     c.AllowAnyMethod();
     c.AllowAnyOrigin();
 
+});
+#endregion
+
+#region [Static Files]
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "Imagens")),
+    RequestPath = "/img"
 });
 #endregion
 
