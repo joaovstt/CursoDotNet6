@@ -1,10 +1,12 @@
 ﻿using API.Entities;
 using API.Entities.ViewModels;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class VideoController : ControllerBase
@@ -50,6 +52,8 @@ namespace API.Controllers
 
             if (video is null)
                 return NotFound();
+
+            videoIn.PublishDate = video.PublishDate;
 
             _videoService.Update(id, videoIn);
 

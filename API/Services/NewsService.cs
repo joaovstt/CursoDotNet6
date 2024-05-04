@@ -2,8 +2,6 @@
 using API.Entities.ViewModels;
 using API.Infra;
 using AutoMapper;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace API.Services
 {
@@ -12,38 +10,99 @@ namespace API.Services
         private readonly IMapper _mapper;
 
         private readonly IMongoRepository<News> _news;
+        private readonly ICacheService _cacheService;
+        private readonly string keyForCache = "news";
 
-        public NewsService(IMongoRepository<News> news, IMapper mapper)
+        public NewsService(IMongoRepository<News> news, IMapper mapper, ICacheService cacheService)
         {
             _mapper = mapper;
             _news = news;
+            _cacheService = cacheService;
+
         }
 
-        public Result<NewsViewModel> Get(int page, int qtd) =>
-            _mapper.Map<Result<NewsViewModel>>(_news.Get(page, qtd));
+        public Result<NewsViewModel> Get(int page, int qtd)
+        {
+            var keyCache = $"{keyForCache}/{page}/{qtd}";
+            var news = _cacheService.Get<Result<NewsViewModel>>(keyCache);
+
+            if (news is null)
+            {
+                news = _mapper.Map<Result<NewsViewModel>>(_news.Get(page, qtd));
+                _cacheService.Set(keyCache, news);
+            }
+
+            return news;
+        }
 
 
-        public NewsViewModel Get(string id) =>
-           _mapper.Map<NewsViewModel>(_news.Get(id));
+        public NewsViewModel Get(string id)
+        {
+            var cacheKey = $"{keyForCache}/{id}";
 
-        public NewsViewModel GetBySlug(string slug) =>
-       _mapper.Map<NewsViewModel>(_news.GetBySlug(slug));
+            var news = _cacheService.Get<NewsViewModel>(cacheKey);
 
+            if (news is null)
+            {
+                news = _mapper.Map<NewsViewModel>(_news.Get(id));
+                _cacheService.Set(cacheKey, news);
+            }
+
+            return news;
+        }
+
+        public NewsViewModel GetBySlug(string slug)
+        {
+            var cacheKey = $"{keyForCache}/{slug}";
+
+            var news = _cacheService.Get<NewsViewModel>(cacheKey);
+
+            if (news is null)
+            {
+                news = _mapper.Map<NewsViewModel>(_news.GetBySlug(slug));
+                _cacheService.Set(cacheKey, news);
+            }
+
+            return news;
+
+        }
 
         public NewsViewModel Create(NewsViewModel news)
         {
-            var entity = new News(news.Hat, news.Title, news.Text, news.Author, news.Img, news.Status);
+            var entity = new News(news.Hat, news.Title, news.Text, news.Author, news.Img, news.Status)
+            {
+                PublishDate = DateTime.Now
+            };
+
             _news.Create(entity);
+
+            var cacheKey = $"{keyForCache}/{entity.Slug}";
+            _cacheService.Set(cacheKey, entity);
 
             return Get(entity.Id);
         }
 
-        public void Update(string id, NewsViewModel newsIn)
+        public void Update(string id, NewsViewModel galleryIn)
         {
-            _news.Update(id, _mapper.Map<News>(newsIn));
+            var cacheKey = $"{keyForCache}/{id}";
+            _news.Update(id, _mapper.Map<News>(galleryIn));
+
+            _cacheService.Remove(cacheKey);
+            _cacheService.Set(cacheKey, galleryIn);
         }
 
-        public void Remove(string id) => _news.Remove(id);
+        public void Remove(string id)
+        {
+
+            var cacheKey = $"{keyForCache}/{id}";
+            _news.Remove(cacheKey);
+
+            var gallery = Get(id);
+            cacheKey = $"{keyForCache}/{gallery.Slug}";
+            _news.Remove(cacheKey);
+
+            _cacheService.Remove(cacheKey);
+        }
 
     }
 }

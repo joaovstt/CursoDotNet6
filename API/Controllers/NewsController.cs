@@ -1,10 +1,12 @@
 ﻿using API.Entities;
 using API.Entities.ViewModels;
 using API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class NewsController : ControllerBase
@@ -49,6 +51,8 @@ namespace API.Controllers
 
             if (news is null)
                 return NotFound();
+
+            newsIn.PublishDate = news.PublishDate;
 
             _newsService.Update(id, newsIn);
 

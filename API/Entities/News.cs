@@ -13,7 +13,6 @@ namespace API.Entities
             Text = text;
             Author = author;
             Img = img;
-            PublishDate = DateTime.Now;
             Slug = Helper.GenerateSlug(Title);
             Status = status;
 
@@ -52,8 +51,6 @@ namespace API.Entities
 
         [BsonElement("img")]
         public string Img { get; private set; }
-
-       
 
         public void ValidateEntity()
         {

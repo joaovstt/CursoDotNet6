@@ -13,7 +13,7 @@ namespace API.Entities
         public string Slug { get; set; }
 
         [BsonElement("publishDate")]
-        public DateTime PublishDate { get; protected set; }
+        public DateTime PublishDate { get; set; }
 
         [BsonElement("active")]
         public Status Status { get; protected set; }

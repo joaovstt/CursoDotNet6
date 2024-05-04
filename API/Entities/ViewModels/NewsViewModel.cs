@@ -12,6 +12,6 @@ namespace API.Entities.ViewModels
         public string Img { get; set; }
         public string? Slug { get; protected set; }
         public Status Status { get; set; }
-        public DateTime PublishDate { get; protected set; }
+        public DateTime PublishDate { get; set; }
     }
 }

@@ -12,7 +12,6 @@ namespace API.Entities
             Title = title;
             Author = author;
             Thumbnail = thumbnail;
-            PublishDate = DateTime.Now;
             Slug = Helper.GenerateSlug(Title);
             Status = status;
             UrlVideo = urlVideo;
