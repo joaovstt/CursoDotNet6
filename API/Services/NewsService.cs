@@ -19,17 +19,20 @@ namespace API.Services
             _news = news;
         }
 
-        public List<NewsViewModel> Get() =>
-            _mapper.Map<List<NewsViewModel>>(_news.Get().ToList());
+        public Result<NewsViewModel> Get(int page, int qtd) =>
+            _mapper.Map<Result<NewsViewModel>>(_news.Get(page, qtd));
 
 
         public NewsViewModel Get(string id) =>
            _mapper.Map<NewsViewModel>(_news.Get(id));
 
+        public NewsViewModel GetBySlug(string slug) =>
+       _mapper.Map<NewsViewModel>(_news.GetBySlug(slug));
+
 
         public NewsViewModel Create(NewsViewModel news)
         {
-            var entity = new News(news.Hat, news.Title, news.Text, news.Author, news.Img, news.Link, news.Status);
+            var entity = new News(news.Hat, news.Title, news.Text, news.Author, news.Img, news.Status);
             _news.Create(entity);
 
             return Get(entity.Id);

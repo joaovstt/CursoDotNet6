@@ -1,11 +1,7 @@
-﻿using API.Entities.ViewModels;
+﻿using API.Entities;
+using API.Entities.ViewModels;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -23,8 +19,8 @@ namespace API.Controllers
             _newsService = newsService;
         }
 
-        [HttpGet]
-        public ActionResult<List<NewsViewModel>> Get() => _newsService.Get();
+        [HttpGet("{page}/{qtd}")]
+        public ActionResult<Result<NewsViewModel>> Get(int page, int qtd) => _newsService.Get(page, qtd);
 
         [HttpGet("{id:length(24)}", Name = "GetNews")]
         public ActionResult<NewsViewModel> Get(string id)

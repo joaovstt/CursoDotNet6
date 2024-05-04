@@ -1,24 +1,24 @@
 ﻿using API.Entities.Enums;
+using API.Infra;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
 
 namespace API.Entities
 {
     public class News : BaseEntity
     {
-
-        public News(string hat, string title, string text, string author, string img, string link, Status status)
-        {
+        public News(string hat, string title, string text, string author, string img, Status status)
+        {          
             Hat = hat;
             Title = title;
             Text = text;
             Author = author;
             Img = img;
-            Link = link;
             PublishDate = DateTime.Now;
+            Slug = Helper.GenerateSlug(Title);
             Status = status;
-        }
 
+            ValidateEntity();
+        }
 
         public Status ChangeStatus(Status status)
         {
@@ -32,7 +32,7 @@ namespace API.Entities
                     break;
                 case Status.Draft:
                     status = Status.Draft;
-                    break;              
+                    break;
             }
 
             return status;
@@ -53,13 +53,16 @@ namespace API.Entities
         [BsonElement("img")]
         public string Img { get; private set; }
 
-        [BsonElement("link")]
-        public string Link { get; private set; }
+       
 
-        [BsonElement("publishDate")]
-        public DateTime PublishDate { get; private set; }
+        public void ValidateEntity()
+        {
+            AssertionConcern.AssertArgumentNotEmpty(Title, "O título não pode estar vazio!");
+            AssertionConcern.AssertArgumentNotEmpty(Hat, "O chapéu não pode estar vazio!");
+            AssertionConcern.AssertArgumentNotEmpty(Text, "O texto não pode estar vazio!");
 
-        [BsonElement("active")]
-        public Status Status { get; private set; }
+            AssertionConcern.AssertArgumentLength(Title, 90, "O título deve ter até 90 caracteres!");
+            AssertionConcern.AssertArgumentLength(Hat, 40, "O chapéu deve ter até 40 caracteres!");
+        }
     }
 }
